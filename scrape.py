@@ -15,7 +15,14 @@ async def main():
 	user = await client.get_authenticated_user()
 	# print("ID:", user.id)
 	# print("Name:", user.name)
-	r = requests.get("https://www.roblox.com/users/"+user_input+"/profile", cookies=cookies)
+	requestPayload = {
+		"usernames": [
+			user_input
+		]
+	}
+	r2=requests.post("https://users.roblox.com/v1/usernames/users",json=requestPayload)
+	userId = r2.json()["data"][0]["id"]
+	r = requests.get("https://www.roblox.com/users/"+str(userId)+"/profile", cookies=cookies)
 	soup = BeautifulSoup(r.content, "html.parser")
 	# print(results2)
 	try:
@@ -23,19 +30,19 @@ async def main():
 		results=soup.find_all('span', {'class' : 'icon-game profile-avatar-status'})[0]
 		tmp=str(results).split("title=\"")[1]
 		tmp=tmp.split("\"></span>")[0]
-		print("Player is playing " + tmp)
+		print(str(user_input) + " is playing " + tmp)
 	except:
-		print("Player cannot be tracked (Privacy settings)\nAttempting to see if they are playing at all.")
+		print(str(user_input) + " cannot be tracked (Privacy settings)\nAttempting to see if they are playing at all.")
 
-	try:
-		# print("Attempting to see if they are playing...\n")
-		results2=soup.find_all('span',{'class': 'avatar-status game icon-game profile-avatar-status'})[0]
-		print("Player is currently online roblox and playing some game on roblox.")
-	except:
-        	print("Player not in game or unable to see. (Privacy settings)\n")
+		try:
+			# print("Attempting to see if they are playing...\n")
+			results2=soup.find_all('span',{'class': 'avatar-status game icon-game profile-avatar-status'})[0]
+			print(str(user_input) + " is currently online roblox and playing some game on roblox.")
+		except:
+				print(str(user_input) + " not in game or unable to see. (Privacy settings)\n")
 	# print(results2)
 	# tmp=str(results).split("title=\"")[1]
 	# tmp=tmp.split("\"></span>")[0]
-	# print("Player is playing " + tmp)
+	# print(str(user_input) + " is playing " + tmp)
 # spans = soup.find_all('span', {'class' : 'icon-game profile-avatar-status'})
 asyncio.get_event_loop().run_until_complete(main())
